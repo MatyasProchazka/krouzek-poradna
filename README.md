@@ -8,6 +8,7 @@ Projekt roste s kroužkem. Každá lekce do něj přidá jednu vrstvu a má vlas
 
 ```
 lekce-01-jak-funguje-web/   miniaturní HTTP server bez knihoven
+lekce-02-html-css-js/       statický prototyp Poradny (HTML, CSS, JS)
 docs/                       plán kroužku, příručka, zápisy z lekcí
 ```
 
