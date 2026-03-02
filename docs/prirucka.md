@@ -8,6 +8,7 @@ Tady najdeš všechno, co potřebuješ nainstalovat a nastavit, abys mohl projek
 2. [Visual Studio Code](#2-visual-studio-code)
 3. [Terminál](#3-terminál)
 4. [Git a GitHub](#4-git-a-github)
+5. [Testování API (Postman / Thunder Client)](#5-testování-api-postman--thunder-client)
 
 ---
 
@@ -90,3 +91,27 @@ git checkout main         # nejnovější stav
 ```
 
 Podrobněji se gitu věnuje lekce 8.
+
+## 5. Testování API (Postman / Thunder Client)
+
+Od lekce 3 má projekt vlastní API. Volat ho můžeš i bez frontendu, a právě tak se API při vývoji nejčastěji zkouší.
+
+**Možnost A: Thunder Client** (rozšíření do VS Code, nejjednodušší)
+
+1. Nainstaluj rozšíření *Thunder Client*.
+2. V levém panelu klikni na ikonu blesku → *New Request*.
+3. Zadej metodu (GET/POST…) a adresu, např. `http://localhost:3000/api/questions`.
+4. U POST požadavku vyplň na záložce *Body → JSON* tělo, např.:
+
+```json
+{ "title": "Co je to API?", "category": "backend" }
+```
+
+**Možnost B: Postman** (samostatná aplikace z [postman.com](https://www.postman.com/downloads/)) funguje stejně, jen má víc funkcí, třeba sdílení kolekcí požadavků.
+
+**Možnost C: curl** (v terminálu, na Windows je od verze 10 předinstalovaný):
+
+```bash
+curl http://localhost:3000/api/questions
+curl -X POST http://localhost:3000/api/questions -H "Content-Type: application/json" -d "{\"title\":\"Co je to API?\",\"category\":\"backend\"}"
+```

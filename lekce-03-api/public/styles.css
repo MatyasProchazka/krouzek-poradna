@@ -1,0 +1,131 @@
+/* ==========================================================================
+   Lekce 2 – CSS
+   --------------------------------------------------------------------------
+   CSS se skládá z pravidel:  SELEKTOR { vlastnost: hodnota; }
+   Selektor říká, KTERÝCH prvků se pravidlo týká:
+     h1          → všechny nadpisy h1
+     .card       → prvky s class="card"
+     #count      → prvek s id="count" (id má být na stránce jen jednou)
+   ========================================================================== */
+
+/* Proměnné (custom properties): barvy definujeme jednou a používáme všude.
+   Když se rozhodneme změnit barvu, měníme ji na jednom místě. */
+:root {
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --ink: #1b1f24;
+  --muted: #5f6b76;
+  --accent: #2f6f5e;
+  --border: #dedbd2;
+  --radius: 10px;
+}
+
+/* box-sizing: border-box → šířka prvku ZAHRNUJE padding a rámeček.
+   Bez toho se rozložení počítá dost neintuitivně. */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.site-header {
+  padding: 2rem 1rem 1rem;
+  text-align: center;
+}
+.site-header h1 { margin: 0; color: var(--accent); }
+.site-header p { margin: .25rem 0 0; color: var(--muted); }
+
+/* Rozložení pomocí CSS Gridu: dva sloupce vedle sebe.
+   minmax(0, 1fr) = sloupec zabere zbytek místa, ale nepřeteče. */
+.layout {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Responzivita: na úzké obrazovce (mobil) dáme sloupce pod sebe.
+   Media query platí jen tehdy, když je splněná podmínka. */
+@media (max-width: 760px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  align-self: start; /* karta nebude natažená na výšku celého řádku */
+}
+
+/* Formulář: Flexbox ve sloupci, mezery mezi prvky řeší gap. */
+form { display: flex; flex-direction: column; gap: .4rem; }
+label { font-weight: 600; font-size: .9rem; margin-top: .5rem; }
+
+input, textarea, select {
+  font: inherit;
+  padding: .6rem .7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* :focus-visible = zvýraznění, když se uživatel pohybuje klávesnicí (Tab).
+   Nikdy focus úplně neschovávej, jinak web nejde ovládat bez myši. */
+input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  outline-offset: 1px;
+}
+
+button {
+  margin-top: 1rem;
+  padding: .7rem;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+button:hover { filter: brightness(1.1); }
+
+.count {
+  display: inline-block;
+  min-width: 1.6rem;
+  padding: 0 .4rem;
+  font-size: .85rem;
+  text-align: center;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 99px;
+  vertical-align: middle;
+}
+
+.question-list { list-style: none; padding: 0; margin: 0; display: grid; gap: .75rem; }
+
+.question {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+.question h3 { margin: 0 0 .25rem; font-size: 1.05rem; }
+.question p { margin: 0; color: var(--muted); }
+.question .meta { margin-top: .5rem; font-size: .8rem; color: var(--muted); }
+
+.site-footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; }
+
+/* --- Lekce 3: doplňky --- */
+.error { color: #b3261e; font-size: .9rem; min-height: 1.2em; margin: .5rem 0 0; }
+.link-button {
+  margin-top: .5rem; padding: 0; background: none; color: #b3261e;
+  font-size: .85rem; font-weight: 600;
+}
