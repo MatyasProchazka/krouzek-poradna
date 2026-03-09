@@ -9,6 +9,7 @@ Tady najdeš všechno, co potřebuješ nainstalovat a nastavit, abys mohl projek
 3. [Terminál](#3-terminál)
 4. [Git a GitHub](#4-git-a-github)
 5. [Testování API (Postman / Thunder Client)](#5-testování-api-postman--thunder-client)
+6. [Next.js aplikace a SQLite](#6-nextjs-aplikace-a-sqlite)
 
 ---
 
@@ -115,3 +116,24 @@ Od lekce 3 má projekt vlastní API. Volat ho můžeš i bez frontendu, a práv�
 curl http://localhost:3000/api/questions
 curl -X POST http://localhost:3000/api/questions -H "Content-Type: application/json" -d "{\"title\":\"Co je to API?\",\"category\":\"backend\"}"
 ```
+
+## 6. Next.js aplikace a SQLite
+
+Od lekce 4 žije hlavní aplikace ve složce `app/`.
+
+```bash
+cd app
+npm install      # stáhne Next.js, React a ovladač databáze
+npm run dev      # vývojový server na http://localhost:3000
+```
+
+**Databáze.** Používáme SQLite, tedy databázi v jediném souboru `app/poradna.db`. Nic se neinstaluje, soubor se vytvoří sám při prvním spuštění a migrace v `src/lib/db.js` do něj doplní tabulky.
+
+- Prohlížení dat: rozšíření **SQLite Viewer** ve VS Code (stačí na soubor kliknout), nebo aplikace [DB Browser for SQLite](https://sqlitebrowser.org).
+- Začít s čistou databází: zastav server a smaž `poradna.db` (případně i `poradna.db-wal` a `poradna.db-shm`).
+- Soubor databáze se do gitu neukládá (je v `.gitignore`), každý má svoji.
+
+**Problémy s instalací `better-sqlite3`.** Ovladač databáze je nativní modul. Pro běžné systémy se stáhne hotový, ale na Windows se občas musí sestavit. Pokud `npm install` skončí chybou kolem `node-gyp`:
+
+1. Ujisti se, že máš Node.js ve verzi LTS (ne nejnovější „Current“), pro které existují hotové balíčky.
+2. Případně nainstaluj *Visual Studio Build Tools* s volbou „Desktop development with C++“ a spusť `npm install` znovu.
