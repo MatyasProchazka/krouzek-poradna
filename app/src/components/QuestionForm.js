@@ -43,10 +43,9 @@ export default function QuestionForm() {
       return;
     }
 
-    setTitle("");
-    setBody("");
-    // router.refresh() řekne Next.js, ať znovu vykreslí serverové komponenty
-    // na stránce. Seznam otázek se tak načte z databáze znovu, i s tou novou.
+    // Po odeslání přejdeme na hlavní stránku se seznamem. router.refresh()
+    // zajistí, že se serverové komponenty vykreslí znovu s čerstvými daty.
+    router.push("/");
     router.refresh();
   }
 

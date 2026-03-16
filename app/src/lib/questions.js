@@ -18,12 +18,22 @@ function toQuestion(row) {
     body: row.body,
     category: row.category,
     createdAt: row.created_at,
+    authorId: row.author_id,
+    authorName: row.author_name ?? "Anonym",
   };
 }
 
+// JOIN spojí řádky dvou tabulek podle podmínky. LEFT JOIN vrátí otázku
+// i tehdy, když nemá autora (starší otázky z lekce 4).
+const SELECT_QUESTIONS = `
+  SELECT q.*, u.name AS author_name
+  FROM questions q
+  LEFT JOIN users u ON u.id = q.author_id
+`;
+
 /** READ – všechny otázky, nejnovější první */
 export function listQuestions() {
-  const rows = db.prepare("SELECT * FROM questions ORDER BY created_at DESC").all();
+  const rows = db.prepare(`${SELECT_QUESTIONS} ORDER BY q.created_at DESC`).all();
   return rows.map(toQuestion);
 }
 
@@ -33,15 +43,15 @@ export function getQuestion(id) {
   // (např. `WHERE id = ${id}`). Útočník by mohl poslat kus SQL kódu
   // a databáze by ho provedla, tomu se říká SQL injection.
   // Parametry databáze bezpečně dosadí sama.
-  const row = db.prepare("SELECT * FROM questions WHERE id = ?").get(id);
+  const row = db.prepare(`${SELECT_QUESTIONS} WHERE q.id = ?`).get(id);
   return row ? toQuestion(row) : null;
 }
 
 /** CREATE – uloží novou otázku a vrátí ji */
-export function createQuestion({ title, body, category }) {
+export function createQuestion({ title, body, category, authorId }) {
   const result = db
-    .prepare("INSERT INTO questions (title, body, category) VALUES (?, ?, ?)")
-    .run(title, body, category);
+    .prepare("INSERT INTO questions (title, body, category, author_id) VALUES (?, ?, ?, ?)")
+    .run(title, body, category, authorId);
   return getQuestion(result.lastInsertRowid);
 }
 

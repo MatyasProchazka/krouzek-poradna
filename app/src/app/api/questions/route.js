@@ -10,12 +10,19 @@
 import { NextResponse } from "next/server";
 import { listQuestions, createQuestion } from "@/lib/questions";
 import { CATEGORY_KEYS } from "@/lib/categories";
+import { getCurrentUser } from "@/lib/auth";
 
 export function GET() {
   return NextResponse.json(listQuestions());
 }
 
 export async function POST(request) {
+  // Ptát se smí jen přihlášený uživatel. Číst otázky (GET) může kdokoli.
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Nejdřív se přihlas." }, { status: 401 });
+  }
+
   const { title, body = "", category } = await request.json();
 
   // Zatím ruční validace jako v lekci 3. V lekci 6 ji nahradí knihovna Zod.
@@ -26,6 +33,11 @@ export async function POST(request) {
     return NextResponse.json({ error: "Neznámá kategorie." }, { status: 400 });
   }
 
-  const question = createQuestion({ title: title.trim(), body: String(body).trim(), category });
+  const question = createQuestion({
+    title: title.trim(),
+    body: String(body).trim(),
+    category,
+    authorId: user.id, // autora bereme z přihlášení, NE z dat od klienta
+  });
   return NextResponse.json(question, { status: 201 });
 }

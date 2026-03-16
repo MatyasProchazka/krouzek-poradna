@@ -10,6 +10,7 @@ Tady najdeš všechno, co potřebuješ nainstalovat a nastavit, abys mohl projek
 4. [Git a GitHub](#4-git-a-github)
 5. [Testování API (Postman / Thunder Client)](#5-testování-api-postman--thunder-client)
 6. [Next.js aplikace a SQLite](#6-nextjs-aplikace-a-sqlite)
+7. [Proměnné prostředí a tajné klíče](#7-proměnné-prostředí-a-tajné-klíče)
 
 ---
 
@@ -137,3 +138,31 @@ npm run dev      # vývojový server na http://localhost:3000
 
 1. Ujisti se, že máš Node.js ve verzi LTS (ne nejnovější „Current“), pro které existují hotové balíčky.
 2. Případně nainstaluj *Visual Studio Build Tools* s volbou „Desktop development with C++“ a spusť `npm install` znovu.
+
+## 7. Proměnné prostředí a tajné klíče
+
+Některé údaje se nesmí objevit v kódu ani v gitu: hesla k databázím, API klíče, tajný klíč pro podepisování tokenů. Ukládají se do **proměnných prostředí**, které si každý nastaví sám.
+
+V Next.js to funguje přes soubory `.env`:
+
+| Soubor | Do gitu? | K čemu |
+|--------|----------|--------|
+| `.env.example` | **ano** | vzor: jaké proměnné aplikace potřebuje, bez skutečných hodnot |
+| `.env.local` | **ne** | tvoje skutečné hodnoty pro vývoj na vlastním počítači |
+
+Postup:
+
+```bash
+cd app
+cp .env.example .env.local        # Windows: copy .env.example .env.local
+```
+
+Pak v `.env.local` nahraď `JWT_SECRET` náhodným řetězcem. Vygeneruješ ho třeba takto:
+
+```bash
+node -e "console.log(crypto.randomUUID() + crypto.randomUUID())"
+```
+
+> Při vývoji (`npm run dev`) aplikace poběží i bez `.env.local` s náhradním klíčem. V produkčním režimu (`npm run build && npm start`) ale bez `JWT_SECRET` záměrně spadne.
+
+Když tajný klíč omylem commitneš, nestačí ho smazat dalším commitem, v historii gitu zůstane. Klíč je potřeba **změnit** (vygenerovat nový).

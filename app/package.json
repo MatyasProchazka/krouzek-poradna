@@ -1,6 +1,6 @@
 {
   "name": "poradna",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "description": "Poradna – projekt kroužku Základy webového vývoje (Next.js + SQLite)",
   "scripts": {
@@ -9,7 +9,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.4.1",
+    "jose": "^6.2.17",
     "next": "15.5.29",
     "react": "19.1.1",
     "react-dom": "19.1.1"

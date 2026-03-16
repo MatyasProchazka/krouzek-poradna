@@ -42,6 +42,21 @@ const MIGRATIONS = [
     ('Proč se mi na mobilu stránka zobrazuje maličká?', 'Na počítači vypadá dobře, na telefonu je všechno malé.', 'frontend', '2026-02-19 20:10:00'),
     ('Co je to REST API?', 'V lekci padlo slovo endpoint, co to přesně je?', 'backend', '2026-03-03 17:45:00');
   `,
+
+  // 2 – Lekce 5: uživatelé a autor otázky
+  `
+  CREATE TABLE users (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    name           TEXT NOT NULL,
+    email          TEXT NOT NULL UNIQUE,           -- UNIQUE: jeden e-mail = jeden účet
+    password_hash  TEXT NOT NULL,                  -- NIKDY neukládáme heslo, jen jeho hash
+    created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  -- Cizí klíč: author_id odkazuje na řádek v tabulce users.
+  -- Starší otázky z lekce 4 autora nemají, proto je sloupec nepovinný (NULL).
+  ALTER TABLE questions ADD COLUMN author_id INTEGER REFERENCES users(id);
+  `,
 ];
 
 function migrate(db) {
