@@ -57,6 +57,21 @@ const MIGRATIONS = [
   -- Starší otázky z lekce 4 autora nemají, proto je sloupec nepovinný (NULL).
   ALTER TABLE questions ADD COLUMN author_id INTEGER REFERENCES users(id);
   `,
+
+  // 3 – Lekce 6: odpovědi
+  `
+  CREATE TABLE answers (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    -- ON DELETE CASCADE: když smažeme otázku, smažou se i její odpovědi
+    question_id  INTEGER NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+    author_id    INTEGER REFERENCES users(id),
+    body         TEXT    NOT NULL,
+    created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  -- Index zrychlí hledání odpovědí podle otázky (jako rejstřík v knize)
+  CREATE INDEX idx_answers_question ON answers(question_id);
+  `,
 ];
 
 function migrate(db) {

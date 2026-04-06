@@ -32,12 +32,15 @@ export default function HomePage() {
       <ul className="question-list">
         {questions.map((q) => (
           <li key={q.id} className="question">
-            <h3>{q.title}</h3>
+            <h3>
+              <Link href={`/otazky/${q.id}`}>{q.title}</Link>
+            </h3>
             {/* React text automaticky "escapuje": <script> se zobrazí jako
                 text a nespustí se. Ochranu proti XSS z lekce 2 máme zadarmo. */}
             <p>{q.body || "Bez podrobností."}</p>
             <div className="meta">
-              {CATEGORIES[q.category]} · {q.authorName} · {new Date(q.createdAt + "Z").toLocaleString("cs-CZ")}
+              {CATEGORIES[q.category]} · {q.authorName} · {new Date(q.createdAt + "Z").toLocaleString("cs-CZ")} ·{" "}
+              {q.answerCount === 1 ? "1 odpověď" : `${q.answerCount} odpovědí`}
             </div>
           </li>
         ))}

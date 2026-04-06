@@ -9,8 +9,9 @@
 
 import { NextResponse } from "next/server";
 import { listQuestions, createQuestion } from "@/lib/questions";
-import { CATEGORY_KEYS } from "@/lib/categories";
 import { getCurrentUser } from "@/lib/auth";
+import { questionSchema } from "@/lib/validation";
+import { parseBody, unauthorized } from "@/lib/http";
 
 export function GET() {
   return NextResponse.json(listQuestions());
@@ -19,25 +20,14 @@ export function GET() {
 export async function POST(request) {
   // Ptát se smí jen přihlášený uživatel. Číst otázky (GET) může kdokoli.
   const user = await getCurrentUser();
-  if (!user) {
-    return NextResponse.json({ error: "Nejdřív se přihlas." }, { status: 401 });
-  }
+  if (!user) return unauthorized();
 
-  const { title, body = "", category } = await request.json();
+  // Lekce 6: místo ručních if-ů validuje Zod podle sdíleného schématu.
+  // Do `data` se dostanou jen pole ze schématu, už oříznutá a zkontrolovaná.
+  // Cokoliv navíc (třeba podvržené "authorId") Zod zahodí.
+  const { data, response } = await parseBody(request, questionSchema);
+  if (response) return response;
 
-  // Zatím ruční validace jako v lekci 3. V lekci 6 ji nahradí knihovna Zod.
-  if (typeof title !== "string" || title.trim().length < 5) {
-    return NextResponse.json({ error: "Otázka musí mít aspoň 5 znaků." }, { status: 400 });
-  }
-  if (!CATEGORY_KEYS.includes(category)) {
-    return NextResponse.json({ error: "Neznámá kategorie." }, { status: 400 });
-  }
-
-  const question = createQuestion({
-    title: title.trim(),
-    body: String(body).trim(),
-    category,
-    authorId: user.id, // autora bereme z přihlášení, NE z dat od klienta
-  });
+  const question = createQuestion({ ...data, authorId: user.id });
   return NextResponse.json(question, { status: 201 });
 }

@@ -2,12 +2,15 @@
 import { NextResponse } from "next/server";
 import { verifyPassword, startSession } from "@/lib/auth";
 import { findUserByEmailWithPassword } from "@/lib/users";
+import { loginSchema } from "@/lib/validation";
+import { parseBody } from "@/lib/http";
 
 export async function POST(request) {
-  const { email, password } = await request.json();
+  const { data, response } = await parseBody(request, loginSchema);
+  if (response) return response;
 
-  const user = email ? findUserByEmailWithPassword(email) : null;
-  const valid = user && (await verifyPassword(password ?? "", user.password_hash));
+  const user = findUserByEmailWithPassword(data.email);
+  const valid = user && (await verifyPassword(data.password, user.password_hash));
 
   if (!valid) {
     // Schválně neříkáme, JESTLI neexistuje e-mail, nebo je špatné heslo.

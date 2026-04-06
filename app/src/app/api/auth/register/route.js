@@ -2,25 +2,24 @@
 import { NextResponse } from "next/server";
 import { hashPassword, startSession } from "@/lib/auth";
 import { createUser, findUserByEmailWithPassword } from "@/lib/users";
+import { registerSchema } from "@/lib/validation";
+import { parseBody } from "@/lib/http";
 
 export async function POST(request) {
-  const { name, email, password } = await request.json();
+  // Lekce 6: validace přes Zod (jméno, platný e-mail, heslo aspoň 8 znaků)
+  const { data, response } = await parseBody(request, registerSchema);
+  if (response) return response;
 
-  // Základní kontrola. Pořádnou validaci přidáme v lekci 6.
-  if (!name || !email || !password || password.length < 8) {
+  if (findUserByEmailWithPassword(data.email)) {
+    // 409 Conflict = takový záznam už existuje
     return NextResponse.json(
-      { error: "Vyplň jméno, e-mail a heslo (aspoň 8 znaků)." },
-      { status: 400 },
+      { error: "Účet s tímto e-mailem už existuje.", fields: { email: "Tenhle e-mail už je zaregistrovaný." } },
+      { status: 409 },
     );
   }
 
-  if (findUserByEmailWithPassword(email)) {
-    // 409 Conflict = takový záznam už existuje
-    return NextResponse.json({ error: "Účet s tímto e-mailem už existuje." }, { status: 409 });
-  }
-
-  const passwordHash = await hashPassword(password);
-  const user = createUser({ name, email, passwordHash });
+  const passwordHash = await hashPassword(data.password);
+  const user = createUser({ name: data.name, email: data.email, passwordHash });
 
   await startSession(user); // po registraci rovnou přihlásíme
   return NextResponse.json(user, { status: 201 });

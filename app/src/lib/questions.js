@@ -20,13 +20,16 @@ function toQuestion(row) {
     createdAt: row.created_at,
     authorId: row.author_id,
     authorName: row.author_name ?? "Anonym",
+    answerCount: row.answer_count ?? 0,
   };
 }
 
 // JOIN spojí řádky dvou tabulek podle podmínky. LEFT JOIN vrátí otázku
 // i tehdy, když nemá autora (starší otázky z lekce 4).
+// Poddotaz (SELECT COUNT…) spočítá odpovědi ke každé otázce.
 const SELECT_QUESTIONS = `
-  SELECT q.*, u.name AS author_name
+  SELECT q.*, u.name AS author_name,
+         (SELECT COUNT(*) FROM answers a WHERE a.question_id = q.id) AS answer_count
   FROM questions q
   LEFT JOIN users u ON u.id = q.author_id
 `;

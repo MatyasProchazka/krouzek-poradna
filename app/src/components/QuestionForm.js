@@ -3,80 +3,110 @@
 // ----------------------------------------------------------------------------
 // "use client" říká Next.js, že tahle komponenta běží v PROHLÍŽEČI.
 // Potřebujeme to, protože reaguje na psaní a klikání (stav, události).
-// Komponenty bez "use client" jsou SERVEROVÉ: vykreslí se na serveru
-// a do prohlížeče dorazí už hotové HTML.
+//
+// Lekce 6: validace na klientu podle STEJNÉHO schématu, jaké používá server
+// (lib/validation.js). Uživatel vidí chybu hned u pole a server dostane
+// jen data, která dávají smysl. Server je přesto kontroluje znovu.
 // ============================================================================
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CATEGORIES } from "@/lib/categories";
+import { questionSchema, validate } from "@/lib/validation";
+import Field from "./Field";
+
+const EMPTY = { title: "", body: "", category: "frontend" };
 
 export default function QuestionForm() {
   const router = useRouter();
 
-  // useState = STAV komponenty. Když se stav změní, React komponentu
-  // automaticky překreslí. Žádné ruční innerHTML jako v lekci 2.
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [category, setCategory] = useState("frontend");
-  const [error, setError] = useState("");
+  // Hodnoty celého formuláře držíme v jednom objektu ve stavu.
+  const [values, setValues] = useState(EMPTY);
+  const [errors, setErrors] = useState({});   // { title: "…", category: "…" }
+  const [formError, setFormError] = useState("");
   const [sending, setSending] = useState(false);
+
+  // Jedna obslužná funkce pro všechna pole. Pozná je podle atributu name.
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setValues((prev) => ({ ...prev, [name]: value }));
+    // Jakmile uživatel pole opravuje, chybu u něj schováme
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }));
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
-    setError("");
-    setSending(true);
+    setFormError("");
 
-    // Stejný fetch jako v lekci 3, jen teď volá API v Next.js
-    const response = await fetch("/api/questions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, body, category }),
-    });
-
-    setSending(false);
-
-    if (!response.ok) {
-      const data = await response.json();
-      setError(data.error);
+    // 1) Validace na klientu: rychlá odezva, žádný zbytečný požadavek
+    const { errors: clientErrors } = validate(questionSchema, values);
+    if (clientErrors) {
+      setErrors(clientErrors);
       return;
     }
 
-    // Po odeslání přejdeme na hlavní stránku se seznamem. router.refresh()
-    // zajistí, že se serverové komponenty vykreslí znovu s čerstvými daty.
-    router.push("/");
-    router.refresh();
+    // 2) Odeslání na server
+    setSending(true);
+    try {
+      const response = await fetch("/api/questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        // 3) Server může vrátit chyby polí (validace) i obecnou chybu
+        setErrors(data.fields ?? {});
+        setFormError(data.error);
+        return;
+      }
+
+      // Hotovo: přesměrujeme na detail nově vytvořené otázky
+      router.push(`/otazky/${data.id}`);
+      router.refresh();
+    } catch {
+      // fetch selže úplně, když není připojení nebo server neběží
+      setFormError("Nepodařilo se spojit se serverem. Zkus to znovu.");
+    } finally {
+      setSending(false); // proběhne vždy, ať skončíme jakkoli
+    }
   }
 
-  // JSX: vypadá jako HTML, ale je to JavaScript. Proto className místo class
-  // a htmlFor místo for. Do {složených závorek} jde vložit libovolný výraz.
   return (
-    <form onSubmit={handleSubmit} className="form">
-      <label htmlFor="title">Otázka</label>
-      <input
-        id="title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}  // "řízený" vstup: hodnota žije ve stavu
+    // noValidate vypne vestavěnou validaci prohlížeče, máme vlastní (Zod)
+    <form onSubmit={handleSubmit} className="form" noValidate>
+      <Field
+        label="Otázka"
+        name="title"
+        value={values.title}
+        onChange={handleChange}
+        error={errors.title}
         placeholder="Např. Jaký hosting pro WordPress?"
       />
 
-      <label htmlFor="body">Podrobnosti</label>
-      <textarea id="body" rows={4} value={body} onChange={(e) => setBody(e.target.value)} />
+      <Field
+        as="textarea"
+        label="Podrobnosti"
+        name="body"
+        rows={5}
+        value={values.body}
+        onChange={handleChange}
+        error={errors.body}
+        placeholder="Co přesně řešíš, co už jsi zkoušel…"
+      />
 
-      <label htmlFor="category">Kategorie</label>
-      <select id="category" value={category} onChange={(e) => setCategory(e.target.value)}>
-        {/* Možnosti vygenerujeme z objektu kategorií. Každá položka seznamu
-            v Reactu potřebuje unikátní `key`, aby React věděl, co je co. */}
+      <Field as="select" label="Kategorie" name="category" value={values.category} onChange={handleChange} error={errors.category}>
         {Object.entries(CATEGORIES).map(([value, label]) => (
           <option key={value} value={value}>{label}</option>
         ))}
-      </select>
+      </Field>
 
       <button type="submit" disabled={sending}>
         {sending ? "Odesílám…" : "Odeslat otázku"}
       </button>
-      <p className="error" aria-live="polite">{error}</p>
+      <p className="error" aria-live="polite">{formError}</p>
     </form>
   );
 }
