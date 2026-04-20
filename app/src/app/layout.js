@@ -23,6 +23,9 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="cs">
       <body>
+        {/* Skip link: uživatel s klávesnicí přeskočí hlavičku jedním Tabem.
+            Je schovaný a objeví se, až na něj přejde focus. */}
+        <a href="#obsah" className="skip-link">Přeskočit na obsah</a>
         <header className="site-header">
           <div>
             {/* <Link> místo <a>: přechod mezi stránkami bez načítání celé stránky */}
@@ -44,7 +47,7 @@ export default async function RootLayout({ children }) {
             )}
           </nav>
         </header>
-        <main>{children}</main>
+        <main id="obsah">{children}</main>
         <footer className="site-footer">Kroužek Základy webového vývoje</footer>
       </body>
     </html>

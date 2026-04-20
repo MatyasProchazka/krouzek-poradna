@@ -11,7 +11,8 @@ import { notFound } from "next/navigation";
 import { getQuestion } from "@/lib/questions";
 import { listAnswers } from "@/lib/answers";
 import { getCurrentUser } from "@/lib/auth";
-import { CATEGORIES } from "@/lib/categories";
+import { formatDateTime, pluralize } from "@/lib/format";
+import CategoryBadge from "@/components/CategoryBadge";
 import AnswerForm from "@/components/AnswerForm";
 
 export const dynamic = "force-dynamic";
@@ -21,10 +22,6 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   const question = getQuestion(Number(id));
   return { title: question ? `${question.title} · Poradna` : "Otázka nenalezena" };
-}
-
-function formatDate(value) {
-  return new Date(value + "Z").toLocaleString("cs-CZ");
 }
 
 export default async function QuestionDetailPage({ params }) {
@@ -40,18 +37,17 @@ export default async function QuestionDetailPage({ params }) {
       <Link href="/" className="back">← Všechny otázky</Link>
 
       <header className="question">
+        <CategoryBadge category={question.category} />
         <h2>{question.title}</h2>
         {/* white-space: pre-wrap v CSS zachová odřádkování z textarey */}
         <p className="prewrap">{question.body || "Bez podrobností."}</p>
         <div className="meta">
-          {CATEGORIES[question.category]} · {question.authorName} · {formatDate(question.createdAt)}
+          {question.authorName} · {formatDateTime(question.createdAt)}
         </div>
       </header>
 
       <section aria-labelledby="answers-title">
-        <h3 id="answers-title">
-          Odpovědi <span className="count">{answers.length}</span>
-        </h3>
+        <h3 id="answers-title">{pluralize(answers.length, ["odpověď", "odpovědi", "odpovědí"])}</h3>
 
         {answers.length === 0 && <p className="muted">Zatím nikdo neodpověděl. Buď první!</p>}
 
@@ -59,7 +55,7 @@ export default async function QuestionDetailPage({ params }) {
           {answers.map((a) => (
             <li key={a.id} className="answer">
               <p className="prewrap">{a.body}</p>
-              <div className="meta">{a.authorName} · {formatDate(a.createdAt)}</div>
+              <div className="meta">{a.authorName} · {formatDateTime(a.createdAt)}</div>
             </li>
           ))}
         </ul>

@@ -1,50 +1,34 @@
 // ============================================================================
 // Hlavní stránka "/" – SERVEROVÁ komponenta
 // ----------------------------------------------------------------------------
-// Next.js používá routování podle souborů: app/page.js = adresa "/",
-// app/ptat-se/page.js = adresa "/ptat-se" atd.
-//
-// Tahle komponenta běží na SERVERU, takže si může sáhnout rovnou do databáze,
-// bez API mezi tím. Do prohlížeče se pošle už hotové HTML (rychlé a dobré
-// pro SEO).
+// Rozdělení práce (lekce 7):
+//   server (tato stránka)        → načte data z databáze
+//   klient (QuestionList)        → filtruje, hledá, řadí, reaguje na uživatele
+// Data předáváme ze serveru do klientské komponenty přes props. Musí to být
+// "obyčejná" data (text, čísla, pole, objekty), protože se posílají po síti.
 // ============================================================================
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { listQuestions } from "@/lib/questions";
-import { CATEGORIES } from "@/lib/categories";
+import QuestionList from "@/components/QuestionList";
 
-// Stránku vykresli při každém požadavku znovu (data se mění), nenechávej ji
-// uloženou jako statické HTML z doby buildu.
 export const dynamic = "force-dynamic";
 
 export default function HomePage() {
-  const questions = listQuestions(); // přímé volání datové vrstvy na serveru
+  const questions = listQuestions();
 
   return (
     <section>
       <div className="section-head">
-        <h2>
-          Otázky <span className="count">{questions.length}</span>
-        </h2>
+        <h2>Otázky</h2>
         <Link href="/ptat-se" className="button-link">Zeptat se</Link>
       </div>
 
-      <ul className="question-list">
-        {questions.map((q) => (
-          <li key={q.id} className="question">
-            <h3>
-              <Link href={`/otazky/${q.id}`}>{q.title}</Link>
-            </h3>
-            {/* React text automaticky "escapuje": <script> se zobrazí jako
-                text a nespustí se. Ochranu proti XSS z lekce 2 máme zadarmo. */}
-            <p>{q.body || "Bez podrobností."}</p>
-            <div className="meta">
-              {CATEGORIES[q.category]} · {q.authorName} · {new Date(q.createdAt + "Z").toLocaleString("cs-CZ")} ·{" "}
-              {q.answerCount === 1 ? "1 odpověď" : `${q.answerCount} odpovědí`}
-            </div>
-          </li>
-        ))}
-      </ul>
+      {/* QuestionList čte filtry z adresy (useSearchParams), proto Suspense */}
+      <Suspense>
+        <QuestionList questions={questions} />
+      </Suspense>
     </section>
   );
 }

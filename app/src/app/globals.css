@@ -169,3 +169,83 @@ button.ghost {
 }
 .answer p { margin: 0; }
 .answer .meta { margin-top: .5rem; font-size: .8rem; color: var(--muted); }
+
+/* --- Lekce 7: UI/UX – štítky, filtry, prázdné stavy, přístupnost --- */
+
+/* Text jen pro čtečky obrazovky (vizuálně schovaný, ale přístupný) */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: absolute; left: 1rem; top: -3rem;
+  padding: .5rem 1rem; background: var(--ink); color: #fff; border-radius: 8px; z-index: 10;
+}
+.skip-link:focus { top: 1rem; }
+
+.badge {
+  display: inline-block; padding: .1rem .55rem; border-radius: 99px;
+  font-size: .75rem; font-weight: 600; background: var(--accent-soft); color: var(--accent);
+}
+.badge-frontend { background: #e6eefc; color: #2451a6; }
+.badge-backend  { background: #f3e8fb; color: #7a3aa6; }
+.badge-hosting  { background: #fdf0e1; color: #9a5a12; }
+.badge-jine     { background: #ececec; color: #4a4a4a; }
+
+.question-top { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin-bottom: .4rem; }
+.status { font-size: .8rem; color: var(--muted); }
+.status-ok { color: var(--accent); font-weight: 600; }
+.question.is-answered { border-left-color: var(--accent); }
+.question:not(.is-answered) { border-left-color: #d9a441; }
+
+/* Zkrácení dlouhého textu na 2 řádky se třemi tečkami */
+.clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.filters { display: grid; grid-template-columns: 1fr auto auto; gap: .5rem; margin: .5rem 0; }
+@media (max-width: 640px) {
+  .filters { grid-template-columns: 1fr 1fr; }
+  .filters input { grid-column: 1 / -1; }
+}
+
+.segmented { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin: .25rem 0 .5rem; }
+.segmented button {
+  margin: 0; border-radius: 0; padding: .4rem .8rem; font-weight: 500;
+  background: var(--surface); color: var(--ink);
+}
+.segmented button + button { border-left: 1px solid var(--border); }
+.segmented button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+.empty { text-align: center; padding: 2rem 1rem; }
+.empty p { margin: .25rem 0; }
+
+.skeleton {
+  height: 92px; margin-bottom: .75rem; border-radius: var(--radius);
+  background: linear-gradient(90deg, var(--border) 25%, var(--surface) 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* Uživatelé, kteří mají v systému omezené animace, je nechtějí vidět */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
+
+/* Tmavý režim podle nastavení systému: stačí přepsat proměnné */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15181c;
+    --surface: #1e2227;
+    --ink: #e8eaed;
+    --muted: #9aa4ae;
+    --accent: #5fb79c;
+    --accent-soft: #1f3a32;
+    --border: #2f353c;
+  }
+  input, textarea, select { background: var(--surface); color: var(--ink); }
+  .badge-frontend { background: #1d2b45; color: #8fb3f5; }
+  .badge-backend  { background: #2f2140; color: #cfa3ef; }
+  .badge-hosting  { background: #3a2a15; color: #f0b874; }
+  .badge-jine     { background: #2c2c2c; color: #c9c9c9; }
+}
