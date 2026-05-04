@@ -92,7 +92,16 @@ git checkout lekce-03     # stav po lekci 3
 git checkout main         # nejnovější stav
 ```
 
-Podrobněji se gitu věnuje lekce 8.
+Podrobněji se gitu věnuje lekce 8 a dokument [Jak pracujeme s gitem](git-workflow.md).
+
+### Fork a pull request (lekce 8)
+
+1. Na stránce repozitáře na GitHubu klikni na **Fork**: vytvoří se tvoje vlastní kopie.
+2. Naklonuj si svůj fork: `git clone https://github.com/<tvuj-ucet>/krouzek-poradna.git`
+3. Vytvoř větev, udělej změnu, commitni a pushni (`git push -u origin nazev-vetve`).
+4. GitHub ti nabídne tlačítko **Compare & pull request**. Vyplň popis podle šablony a odešli.
+
+> **Přihlášení ke GitHubu z terminálu:** při prvním `git push` se otevře okno prohlížeče (Git Credential Manager na Windows). Na macOS/Linuxu je nejjednodušší nainstalovat [GitHub CLI](https://cli.github.com) a spustit `gh auth login`.
 
 ## 5. Testování API (Postman / Thunder Client)
 
