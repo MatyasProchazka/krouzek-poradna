@@ -39,3 +39,15 @@ export function unauthorized(message = "Nejdřív se přihlas.") {
 export function notFound(message = "Nenalezeno.") {
   return NextResponse.json({ error: message }, { status: 404 });
 }
+
+export function forbidden(message = "Na tohle nemáš oprávnění.") {
+  // 401 = nevím, kdo jsi (nepřihlášený). 403 = vím, kdo jsi, ale nesmíš to.
+  return NextResponse.json({ error: message }, { status: 403 });
+}
+
+export function tooManyRequests(retryAfter) {
+  return NextResponse.json(
+    { error: `Příliš mnoho pokusů. Zkus to znovu za ${retryAfter} s.` },
+    { status: 429, headers: { "Retry-After": String(retryAfter) } },
+  );
+}

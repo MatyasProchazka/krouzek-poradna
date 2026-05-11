@@ -5,7 +5,8 @@
 import { db } from "./db";
 
 function toUser(row) {
-  return { id: row.id, name: row.name, email: row.email, createdAt: row.created_at };
+  // Hash hesla schválně NEvracíme. Co se nepošle ven, nemůže uniknout.
+  return { id: row.id, name: row.name, email: row.email, role: row.role, createdAt: row.created_at };
 }
 
 /** Najde uživatele podle e-mailu. Vrací i hash hesla, používá se jen při přihlášení. */

@@ -11,7 +11,8 @@ import { NextResponse } from "next/server";
 import { listQuestions, createQuestion } from "@/lib/questions";
 import { getCurrentUser } from "@/lib/auth";
 import { questionSchema } from "@/lib/validation";
-import { parseBody, unauthorized } from "@/lib/http";
+import { parseBody, unauthorized, forbidden } from "@/lib/http";
+import { can } from "@/lib/permissions";
 
 export function GET() {
   return NextResponse.json(listQuestions());
@@ -21,6 +22,7 @@ export async function POST(request) {
   // Ptát se smí jen přihlášený uživatel. Číst otázky (GET) může kdokoli.
   const user = await getCurrentUser();
   if (!user) return unauthorized();
+  if (!can(user, "question:create")) return forbidden();
 
   // Lekce 6: místo ručních if-ů validuje Zod podle sdíleného schématu.
   // Do `data` se dostanou jen pole ze schématu, už oříznutá a zkontrolovaná.

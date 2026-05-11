@@ -21,6 +21,7 @@ function toQuestion(row) {
     authorId: row.author_id,
     authorName: row.author_name ?? "Anonym",
     answerCount: row.answer_count ?? 0,
+    acceptedAnswerId: row.accepted_answer_id ?? null,
   };
 }
 
@@ -62,4 +63,10 @@ export function createQuestion({ title, body, category, authorId }) {
 export function deleteQuestion(id) {
   const result = db.prepare("DELETE FROM questions WHERE id = ?").run(id);
   return result.changes > 0;
+}
+
+/** UPDATE – označí odpověď jako správnou (nebo zruší označení: answerId = null) */
+export function setAcceptedAnswer(questionId, answerId) {
+  db.prepare("UPDATE questions SET accepted_answer_id = ? WHERE id = ?").run(answerId, questionId);
+  return getQuestion(questionId);
 }

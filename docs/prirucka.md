@@ -11,6 +11,7 @@ Tady najdeš všechno, co potřebuješ nainstalovat a nastavit, abys mohl projek
 5. [Testování API (Postman / Thunder Client)](#5-testování-api-postman--thunder-client)
 6. [Next.js aplikace a SQLite](#6-nextjs-aplikace-a-sqlite)
 7. [Proměnné prostředí a tajné klíče](#7-proměnné-prostředí-a-tajné-klíče)
+8. [Účet lektora](#8-účet-lektora)
 
 ---
 
@@ -175,3 +176,14 @@ node -e "console.log(crypto.randomUUID() + crypto.randomUUID())"
 > Při vývoji (`npm run dev`) aplikace poběží i bez `.env.local` s náhradním klíčem. V produkčním režimu (`npm run build && npm start`) ale bez `JWT_SECRET` záměrně spadne.
 
 Když tajný klíč omylem commitneš, nestačí ho smazat dalším commitem, v historii gitu zůstane. Klíč je potřeba **změnit** (vygenerovat nový).
+
+## 8. Účet lektora
+
+Od lekce 9 rozlišuje aplikace role **student** a **lektor**. Lektor smí mazat cizí otázky i odpovědi a označovat správné odpovědi. Každý nový účet je student. Lektora z něj udělá správce skriptem:
+
+```bash
+cd app
+npm run set-role -- jana@example.cz lektor
+```
+
+Uživatel musí být nejdřív zaregistrovaný. Změna platí okamžitě, není potřeba se znovu přihlašovat (role se při každém požadavku čte z databáze, ne z tokenu).

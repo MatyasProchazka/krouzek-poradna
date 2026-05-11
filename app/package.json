@@ -1,6 +1,6 @@
 {
   "name": "poradna",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "Poradna – projekt kroužku Základy webového vývoje (Next.js + SQLite)",
   "scripts": {
@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "set-role": "node scripts/set-role.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

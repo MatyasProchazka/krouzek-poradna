@@ -72,6 +72,17 @@ const MIGRATIONS = [
   -- Index zrychlí hledání odpovědí podle otázky (jako rejstřík v knize)
   CREATE INDEX idx_answers_question ON answers(question_id);
   `,
+
+  // 4 – Lekce 9: role uživatelů a označení správné odpovědi
+  `
+  -- CHECK: databáze sama odmítne jinou hodnotu než povolené role.
+  -- Další vrstva ochrany: i kdyby v kódu byla chyba, nesmysl se neuloží.
+  ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'student'
+    CHECK (role IN ('student', 'lektor'));
+
+  ALTER TABLE questions ADD COLUMN accepted_answer_id INTEGER
+    REFERENCES answers(id) ON DELETE SET NULL;
+  `,
 ];
 
 function migrate(db) {

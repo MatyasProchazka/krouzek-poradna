@@ -3,9 +3,14 @@ import { NextResponse } from "next/server";
 import { verifyPassword, startSession } from "@/lib/auth";
 import { findUserByEmailWithPassword } from "@/lib/users";
 import { loginSchema } from "@/lib/validation";
-import { parseBody } from "@/lib/http";
+import { parseBody, tooManyRequests } from "@/lib/http";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export async function POST(request) {
+  // Lekce 9: max. 5 pokusů za minutu z jedné IP adresy (ochrana proti hádání hesel)
+  const { allowed, retryAfter } = rateLimit(`login:${clientIp(request)}`);
+  if (!allowed) return tooManyRequests(retryAfter);
+
   const { data, response } = await parseBody(request, loginSchema);
   if (response) return response;
 

@@ -249,3 +249,19 @@ button.ghost {
   .badge-hosting  { background: #3a2a15; color: #f0b874; }
   .badge-jine     { background: #2c2c2c; color: #c9c9c9; }
 }
+
+/* --- Lekce 9: akce, role, správná odpověď --- */
+.actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .75rem; }
+.action { display: inline-flex; align-items: center; gap: .5rem; }
+.actions button { margin: 0; }
+button.danger {
+  margin: 0; padding: .45rem .8rem; color: var(--danger);
+  background: transparent; border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+}
+.role-badge {
+  margin-left: .4rem; padding: 0 .4rem; border-radius: 4px;
+  font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  background: var(--accent); color: #fff;
+}
+.answer.is-accepted { border: 2px solid var(--accent); background: var(--accent-soft); }
+.accepted-label { font-size: .8rem; font-weight: 700; color: var(--accent); margin-bottom: .35rem; }
