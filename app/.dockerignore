@@ -1,0 +1,9 @@
+# Co se NEMÁ kopírovat do Docker image (zrychlí build, nic tajného neuteče)
+node_modules
+.next
+*.db
+*.db-*
+.env
+.env.local
+tests
+coverage

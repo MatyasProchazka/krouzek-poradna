@@ -1,0 +1,17 @@
+# Docker Compose: spuštění aplikace jedním příkazem
+#   docker compose up --build
+# Pak otevři http://localhost:3000
+services:
+  poradna:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      # Na serveru tajný klíč nastav v souboru .env vedle tohoto souboru
+      JWT_SECRET: ${JWT_SECRET:-zmen-me-v-souboru-env}
+    volumes:
+      - poradna-data:/data   # databáze přežije restart i smazání kontejneru
+    restart: unless-stopped
+
+volumes:
+  poradna-data:

@@ -1,0 +1,74 @@
+# ============================================================================
+# CI/CD pipeline v GitHub Actions
+# ----------------------------------------------------------------------------
+# CI (Continuous Integration): při každém pushi a pull requestu GitHub sám
+#   nainstaluje závislosti, spustí testy a zkusí aplikaci sestavit.
+#   Rozbitý kód se tak pozná dřív, než se dostane do main.
+# CD (Continuous Delivery): po úspěšném pushi do main se sestaví Docker image
+#   a nahraje do GitHub Container Registry (ghcr.io), odkud si ho stáhne server.
+#
+# Výsledky najdeš na GitHubu v záložce Actions.
+# ============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test-and-build:
+    name: Testy a build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app   # aplikace je v podsložce app/
+
+    steps:
+      - name: Stáhnout kód
+        uses: actions/checkout@v4
+
+      - name: Nainstalovat Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Nainstalovat závislosti
+        run: npm ci   # jako npm install, ale přesně podle package-lock.json
+
+      - name: Testy
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        env:
+          JWT_SECRET: ci-only-secret   # build potřebuje nějakou hodnotu, skutečný klíč tu není
+
+  docker:
+    name: Docker image
+    needs: test-and-build          # spustí se jen když testy a build prošly
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write              # právo nahrát image do ghcr.io
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Přihlásit se do GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}   # token, který GitHub dává automaticky
+
+      - name: Sestavit a nahrát image
+        uses: docker/build-push-action@v6
+        with:
+          context: app
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest
