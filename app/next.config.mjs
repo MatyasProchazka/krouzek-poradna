@@ -44,6 +44,11 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Lekce 10: "standalone" vytvoří při buildu složku .next/standalone se
+  // vším, co aplikace potřebuje ke spuštění (bez vývojových nástrojů).
+  // Docker image je díky tomu malý. Viz Dockerfile.
+  output: "standalone",
+
   // better-sqlite3 je nativní modul (část je napsaná v C++). Next.js ho nesmí
   // "zabalit" do svého bundlu, ale musí ho načíst přímo z node_modules.
   serverExternalPackages: ["better-sqlite3"],

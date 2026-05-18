@@ -1,0 +1,12 @@
+# Dependabot jednou týdně zkontroluje, jestli nejsou nové verze knihoven
+# (hlavně kvůli bezpečnostním opravám), a sám otevře pull request.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /app
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

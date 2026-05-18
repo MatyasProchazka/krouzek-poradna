@@ -14,6 +14,7 @@ import "./globals.css";
 export const metadata = {
   title: "Poradna",
   description: "Zeptej se na cokoliv z webového vývoje.",
+  icons: { icon: "/favicon.svg" },
 };
 
 // Layout je serverová komponenta, může tedy být async a zjistit přihlášení.

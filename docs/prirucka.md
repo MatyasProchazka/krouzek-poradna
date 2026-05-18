@@ -12,6 +12,9 @@ Tady najdeš všechno, co potřebuješ nainstalovat a nastavit, abys mohl projek
 6. [Next.js aplikace a SQLite](#6-nextjs-aplikace-a-sqlite)
 7. [Proměnné prostředí a tajné klíče](#7-proměnné-prostředí-a-tajné-klíče)
 8. [Účet lektora](#8-účet-lektora)
+9. [Docker](#9-docker)
+10. [GitHub Actions (CI/CD)](#10-github-actions-cicd)
+11. [Nasazení na internet](#11-nasazení-na-internet)
 
 ---
 
@@ -187,3 +190,59 @@ npm run set-role -- jana@example.cz lektor
 ```
 
 Uživatel musí být nejdřív zaregistrovaný. Změna platí okamžitě, není potřeba se znovu přihlašovat (role se při každém požadavku čte z databáze, ne z tokenu).
+
+## 9. Docker
+
+Docker spouští aplikace v izolovaných kontejnerech. Na kroužku ho používáme k ukázce, jak se aplikace balí pro server (lekce 10). Pro běžný vývoj ho nepotřebuješ.
+
+1. Nainstaluj **Docker Desktop** z [docker.com](https://www.docker.com/products/docker-desktop/) (Windows, macOS). Na Windows instalátor nabídne zapnutí WSL 2, potvrď.
+2. Ověř: `docker --version` a `docker compose version`.
+3. Spuštění Poradny:
+
+```bash
+cd app
+docker compose up --build      # první build trvá pár minut
+```
+
+Aplikace poběží na `http://localhost:3000`. Zastavení: `Ctrl+C`, úklid: `docker compose down`. Data zůstanou ve volume `poradna-data`. Smazat je i s daty: `docker compose down -v`.
+
+## 10. GitHub Actions (CI/CD)
+
+Pipeline je v `.github/workflows/ci.yml` a na GitHubu se spouští **sama**, nic se nenastavuje.
+
+- Výsledky: záložka **Actions** v repozitáři. U pull requestu se zobrazí zelená fajfka nebo červený křížek.
+- Docker image se po pushi do `main` nahraje do **GitHub Container Registry** (`ghcr.io/<uzivatel>/<repo>`). Najdeš ho v repozitáři vpravo v sekci *Packages*. Ve výchozím stavu je soukromý, veřejným ho uděláš v nastavení balíčku (*Package settings → Change visibility*).
+- Ve forku je potřeba Actions jednou povolit: záložka *Actions* → *I understand my workflows, go ahead and enable them*.
+
+> Název image v ghcr.io musí být malými písmeny. Pokud má tvůj účet nebo repozitář velká písmena, uprav v `ci.yml` řádek `tags` ručně, např. `ghcr.io/jannovak/krouzek-poradna:latest`.
+
+## 11. Nasazení na internet
+
+Poradna ukládá data do souboru SQLite, potřebuje tedy hosting s **trvalým diskem**. Serverless platformy jako Vercel nebo Netlify disk po každém požadavku zahazují, data by mizela.
+
+### Varianta A: Railway (nejjednodušší, má zkušební kredit)
+
+1. Přihlas se na [railway.com](https://railway.com) přes GitHub.
+2. *New Project → Deploy from GitHub repo* → vyber svůj fork.
+3. V nastavení služby (*Settings*) nastav **Root Directory** na `app`. Railway najde `Dockerfile` a použije ho.
+4. Přidej **Volume** (pravým tlačítkem na službu → *Attach volume*) s cestou `/data`.
+5. V záložce **Variables** přidej `JWT_SECRET` s náhodnou hodnotou.
+6. V *Settings → Networking* klikni na **Generate Domain**. Dostaneš adresu typu `poradna-production.up.railway.app`.
+
+Po každém pushi do `main` Railway aplikaci sám znovu nasadí.
+
+### Varianta B: vlastní VPS (např. levný server za ~100–150 Kč měsíčně)
+
+```bash
+# na serveru s nainstalovaným Dockerem
+git clone https://github.com/<uzivatel>/krouzek-poradna.git
+cd krouzek-poradna/app
+echo "JWT_SECRET=$(openssl rand -hex 32)" > .env
+docker compose up -d --build
+```
+
+Před aplikaci se pak dává reverzní proxy s HTTPS certifikátem, nejjednodušeji [Caddy](https://caddyserver.com), který certifikát od Let's Encrypt zařídí sám.
+
+### Vlastní doména
+
+U registrátora domény (např. Forpsi, Wedos, Active24) přidej v DNS záznam `CNAME` (nebo `A` u VPS) odkazující na adresu od hostingu. Změna DNS se projeví během minut až hodin.
