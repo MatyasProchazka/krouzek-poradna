@@ -31,3 +31,6 @@ Pak otevři http://localhost:3000. Starší lekce (01–03) se spouštějí podl
 - [Plán kroužku](docs/plan-krouzku.md) – přehled všech lekcí a co v nich v repu přibude
 - [Příručka](docs/prirucka.md) – instalace a nastavení nástrojů a služeb
 - [Zápisy z lekcí](docs/lekce/) – co jsme probírali a úkoly na doma
+- [Architektura](docs/architektura.md) – diagramy vrstev a datového modelu
+- [API](docs/api/openapi.yaml) – popis endpointů ve formátu OpenAPI
+- [Jak pracujeme s gitem](docs/git-workflow.md)

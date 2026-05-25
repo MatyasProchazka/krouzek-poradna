@@ -1,0 +1,297 @@
+# Dokumentace API Poradny ve formátu OpenAPI 3
+# Zobrazení: vlož obsah souboru do https://editor.swagger.io
+#
+# OpenAPI je standardní, strojově čitelný popis REST API. Z něj jde
+# vygenerovat dokumentaci, klienta v libovolném jazyce i testy.
+
+openapi: 3.1.0
+info:
+  title: Poradna API
+  version: 0.11.0
+  description: |
+    API projektu Poradna z kroužku Základy webového vývoje.
+    Přihlášení probíhá cookie `poradna_session` (JWT), kterou nastaví `/api/auth/login`.
+    Všechna data jsou omezená na organizaci (školu) přihlášeného uživatele.
+
+servers:
+  - url: http://localhost:3000
+    description: Lokální vývoj
+
+tags:
+  - name: Přihlášení
+  - name: Otázky
+  - name: Odpovědi
+  - name: Organizace
+  - name: Provoz
+
+components:
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: poradna_session
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string, example: "Zkontroluj zvýrazněná pole." }
+        fields:
+          type: object
+          additionalProperties: { type: string }
+          example: { title: "Otázka musí mít aspoň 5 znaků." }
+
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        role: { type: string, enum: [student, lektor] }
+        organizationId: { type: integer }
+        organizationName: { type: string }
+
+    Category:
+      type: string
+      enum: [frontend, backend, hosting, jine]
+
+    Question:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        body: { type: string }
+        category: { $ref: "#/components/schemas/Category" }
+        createdAt: { type: string, example: "2026-03-09 16:00:00" }
+        authorId: { type: integer, nullable: true }
+        authorName: { type: string }
+        answerCount: { type: integer }
+        acceptedAnswerId: { type: integer, nullable: true }
+
+    QuestionInput:
+      type: object
+      required: [title, category]
+      properties:
+        title: { type: string, minLength: 5, maxLength: 150 }
+        body: { type: string, maxLength: 5000 }
+        category: { $ref: "#/components/schemas/Category" }
+
+    Answer:
+      type: object
+      properties:
+        id: { type: integer }
+        questionId: { type: integer }
+        body: { type: string }
+        createdAt: { type: string }
+        authorName: { type: string }
+        authorRole: { type: string, enum: [student, lektor] }
+
+  responses:
+    BadRequest:
+      description: Neplatná data
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Unauthorized:
+      description: Nepřihlášený uživatel
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Forbidden:
+      description: Chybí oprávnění
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    NotFound:
+      description: Nenalezeno (nebo patří jiné organizaci)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    TooManyRequests:
+      description: Příliš mnoho pokusů
+      headers:
+        Retry-After: { schema: { type: integer }, description: Za kolik sekund to zkusit znovu }
+
+  parameters:
+    QuestionId:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer }
+
+security:
+  - session: []
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [Přihlášení]
+      summary: Registrace (připojení ke škole kódem, nebo založení nové školy)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password, mode]
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                mode: { type: string, enum: [join, create] }
+                inviteCode: { type: string, description: "Povinné při mode=join" }
+                organizationName: { type: string, description: "Povinné při mode=create" }
+      responses:
+        "201":
+          description: Účet vytvořen a uživatel přihlášen (nastaví cookie)
+          content: { application/json: { schema: { $ref: "#/components/schemas/User" } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "409": { description: E-mail už je zaregistrovaný }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+
+  /api/auth/login:
+    post:
+      tags: [Přihlášení]
+      summary: Přihlášení
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        "200": { description: Přihlášeno (nastaví cookie) }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+
+  /api/auth/logout:
+    post:
+      tags: [Přihlášení]
+      summary: Odhlášení (smaže cookie)
+      responses:
+        "200": { description: Odhlášeno }
+
+  /api/questions:
+    get:
+      tags: [Otázky]
+      summary: Seznam otázek organizace
+      responses:
+        "200":
+          description: Pole otázek, nejnovější první
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Question" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      tags: [Otázky]
+      summary: Nová otázka
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/QuestionInput" } } }
+      responses:
+        "201":
+          description: Otázka vytvořena
+          content: { application/json: { schema: { $ref: "#/components/schemas/Question" } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/questions/{id}:
+    parameters: [{ $ref: "#/components/parameters/QuestionId" }]
+    get:
+      tags: [Otázky]
+      summary: Detail otázky včetně odpovědí
+      responses:
+        "200":
+          description: Otázka
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Question"
+                  - type: object
+                    properties:
+                      answers: { type: array, items: { $ref: "#/components/schemas/Answer" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Otázky]
+      summary: Smazání otázky (autor nebo lektor)
+      responses:
+        "204": { description: Smazáno }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/questions/{id}/answers:
+    parameters: [{ $ref: "#/components/parameters/QuestionId" }]
+    post:
+      tags: [Odpovědi]
+      summary: Nová odpověď
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: { type: string, minLength: 10, maxLength: 10000 }
+      responses:
+        "201":
+          description: Odpověď vytvořena
+          content: { application/json: { schema: { $ref: "#/components/schemas/Answer" } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/questions/{id}/answers/{answerId}:
+    parameters:
+      - { $ref: "#/components/parameters/QuestionId" }
+      - { name: answerId, in: path, required: true, schema: { type: integer } }
+    delete:
+      tags: [Odpovědi]
+      summary: Smazání odpovědi (autor nebo lektor)
+      responses:
+        "204": { description: Smazáno }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/questions/{id}/accept:
+    parameters: [{ $ref: "#/components/parameters/QuestionId" }]
+    post:
+      tags: [Odpovědi]
+      summary: Označení správné odpovědi (autor otázky nebo lektor)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answerId]
+              properties:
+                answerId: { type: integer, nullable: true, description: "null zruší označení" }
+      responses:
+        "200":
+          description: Aktualizovaná otázka
+          content: { application/json: { schema: { $ref: "#/components/schemas/Question" } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/organization/invite:
+    post:
+      tags: [Organizace]
+      summary: Nový kód pozvánky (jen lektor)
+      responses:
+        "200":
+          description: Nový kód
+          content:
+            application/json:
+              schema: { type: object, properties: { inviteCode: { type: string, example: "K7Q-2MX-9PD" } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/health:
+    get:
+      tags: [Provoz]
+      summary: Kontrola, že aplikace a databáze běží
+      security: []
+      responses:
+        "200": { description: "OK" }
+        "503": { description: Databáze nedostupná }

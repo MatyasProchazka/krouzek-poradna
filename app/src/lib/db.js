@@ -83,6 +83,29 @@ const MIGRATIONS = [
   ALTER TABLE questions ADD COLUMN accepted_answer_id INTEGER
     REFERENCES answers(id) ON DELETE SET NULL;
   `,
+
+  // 5 – Lekce 11: SaaS – více škol (organizací) v jedné aplikaci
+  `
+  CREATE TABLE organizations (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    name         TEXT NOT NULL,
+    invite_code  TEXT NOT NULL UNIQUE,              -- kód, kterým se ke škole připojí studenti
+    plan         TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'skola')),
+    created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  -- Každý uživatel a každá otázka patří jedné organizaci (tzv. tenant_id).
+  ALTER TABLE users     ADD COLUMN organization_id INTEGER REFERENCES organizations(id);
+  ALTER TABLE questions ADD COLUMN organization_id INTEGER REFERENCES organizations(id);
+
+  -- Dosavadní data přesuneme do výchozí organizace, ať se nic neztratí
+  INSERT INTO organizations (id, name, invite_code) VALUES (1, 'Kroužek Vysočina', 'KROUZEK-2026');
+  UPDATE users     SET organization_id = 1 WHERE organization_id IS NULL;
+  UPDATE questions SET organization_id = 1 WHERE organization_id IS NULL;
+
+  -- Skoro každý dotaz teď filtruje podle organizace, index je nutnost
+  CREATE INDEX idx_questions_org ON questions(organization_id);
+  `,
 ];
 
 function migrate(db) {

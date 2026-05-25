@@ -37,6 +37,8 @@ export default async function RootLayout({ children }) {
           <nav className="nav" aria-label="Uživatel">
             {user ? (
               <>
+                {/* Lekce 11: název školy (tenantu), ve které uživatel je */}
+                <Link href="/skola" className="org-chip">{user.organizationName}</Link>
                 <span className="muted">Ahoj, {user.name}</span>
                 <LogoutButton />
               </>

@@ -250,6 +250,22 @@ button.ghost {
   .badge-jine     { background: #2c2c2c; color: #c9c9c9; }
 }
 
+/* --- Lekce 11: organizace --- */
+.org-chip {
+  padding: .2rem .6rem; border-radius: 99px; font-size: .8rem; font-weight: 600;
+  text-decoration: none; background: var(--accent-soft); color: var(--accent);
+}
+.choice { border: 1px solid var(--border); border-radius: 8px; margin: .75rem 0 0; padding: .5rem .9rem .9rem; display: grid; gap: .35rem; }
+.choice legend { font-weight: 600; font-size: .9rem; padding: 0 .3rem; }
+.choice > label { display: flex; gap: .5rem; align-items: center; font-size: .95rem; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: .4rem 1rem; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; display: flex; gap: .75rem; align-items: center; }
+.invite-code {
+  font-family: ui-monospace, "Cascadia Code", monospace; font-size: 1.6rem; letter-spacing: .1em;
+  padding: .6rem 1rem; background: var(--accent-soft); border-radius: 8px; text-align: center;
+}
+
 /* --- Lekce 9: akce, role, správná odpověď --- */
 .actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .75rem; }
 .action { display: inline-flex; align-items: center; gap: .5rem; }

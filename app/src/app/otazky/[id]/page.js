@@ -22,16 +22,17 @@ export const dynamic = "force-dynamic";
 // generateMetadata: titulek záložky podle konkrétní otázky (dobré i pro SEO)
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const question = getQuestion(Number(id));
+  const user = await getCurrentUser();
+  const question = user ? getQuestion(Number(id), user.organizationId) : null;
   return { title: question ? `${question.title} · Poradna` : "Otázka nenalezena" };
 }
 
 export default async function QuestionDetailPage({ params }) {
   const { id } = await params;
-  const question = getQuestion(Number(id));
-  if (!question) notFound(); // zobrazí stránku 404
-
+  // Přihlášení hlídá middleware. Otázka jiné školy = 404.
   const user = await getCurrentUser();
+  const question = user ? getQuestion(Number(id), user.organizationId) : null;
+  if (!question) notFound(); // zobrazí stránku 404
 
   // Správná odpověď půjde nahoru, ostatní zůstanou v pořadí, jak přišly
   const answers = listAnswers(question.id).sort(

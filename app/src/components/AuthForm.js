@@ -17,6 +17,8 @@ export default function AuthForm({ mode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [errors, setErrors] = useState({});
+  // Lekce 11: při registraci se buď připojím ke škole, nebo založím novou
+  const [orgMode, setOrgMode] = useState("join");
   const [formError, setFormError] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -68,6 +70,27 @@ export default function AuthForm({ mode }) {
         autoComplete={isRegister ? "new-password" : "current-password"}
         error={errors.password}
       />
+
+      {isRegister && (
+        // <fieldset> + <legend> seskupí související volby (i pro čtečky obrazovky)
+        <fieldset className="choice">
+          <legend>Škola</legend>
+          <label>
+            <input type="radio" name="mode" value="join" checked={orgMode === "join"} onChange={() => setOrgMode("join")} />
+            Mám kód pozvánky od lektora
+          </label>
+          <label>
+            <input type="radio" name="mode" value="create" checked={orgMode === "create"} onChange={() => setOrgMode("create")} />
+            Zakládám Poradnu pro svoji školu
+          </label>
+
+          {orgMode === "join" ? (
+            <Field label="Kód pozvánky" name="inviteCode" placeholder="např. K7Q-2MX-9PD" error={errors.inviteCode} />
+          ) : (
+            <Field label="Název školy" name="organizationName" placeholder="např. SPŠ Jihlava" error={errors.organizationName} />
+          )}
+        </fieldset>
+      )}
 
       <button type="submit" disabled={sending}>
         {isRegister ? "Vytvořit účet" : "Přihlásit se"}

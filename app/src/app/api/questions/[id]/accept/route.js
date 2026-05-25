@@ -15,7 +15,7 @@ export async function POST(request, { params }) {
   if (!user) return unauthorized();
 
   const { id } = await params;
-  const question = getQuestion(Number(id));
+  const question = getQuestion(Number(id), user.organizationId);
   if (!question) return notFound("Otázka nenalezena.");
 
   if (!can(user, "answer:accept", question)) {
@@ -30,5 +30,5 @@ export async function POST(request, { params }) {
     if (!answer || answer.questionId !== question.id) return notFound("Odpověď nenalezena.");
   }
 
-  return NextResponse.json(setAcceptedAnswer(question.id, data.answerId));
+  return NextResponse.json(setAcceptedAnswer(question.id, data.answerId, user.organizationId));
 }

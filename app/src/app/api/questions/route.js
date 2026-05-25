@@ -14,12 +14,15 @@ import { questionSchema } from "@/lib/validation";
 import { parseBody, unauthorized, forbidden } from "@/lib/http";
 import { can } from "@/lib/permissions";
 
-export function GET() {
-  return NextResponse.json(listQuestions());
+export async function GET() {
+  // Lekce 11: otázky už nejsou veřejné, každý vidí jen otázky své školy
+  const user = await getCurrentUser();
+  if (!user) return unauthorized();
+  return NextResponse.json(listQuestions(user.organizationId));
 }
 
 export async function POST(request) {
-  // Ptát se smí jen přihlášený uživatel. Číst otázky (GET) může kdokoli.
+  // Ptát se smí jen přihlášený uživatel.
   const user = await getCurrentUser();
   if (!user) return unauthorized();
   if (!can(user, "question:create")) return forbidden();
@@ -30,6 +33,7 @@ export async function POST(request) {
   const { data, response } = await parseBody(request, questionSchema);
   if (response) return response;
 
-  const question = createQuestion({ ...data, authorId: user.id });
+  // Organizaci bereme z přihlášeného uživatele, NIKDY z dat od klienta
+  const question = createQuestion({ ...data, authorId: user.id, organizationId: user.organizationId });
   return NextResponse.json(question, { status: 201 });
 }
