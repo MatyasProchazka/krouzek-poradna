@@ -6,6 +6,11 @@
 //
 // CRUD = čtyři základní operace s daty:
 //   Create → INSERT   Read → SELECT   Update → UPDATE   Delete → DELETE
+//
+// Lekce 11 (SaaS): každé čtení dostává organizationId a filtruje podle něj.
+// Na tomhle jediném WHERE stojí to, že škola A nikdy neuvidí otázky školy B.
+// Proto je filtr přímo v datové vrstvě, a ne až ve stránkách: nejde na něj
+// "zapomenout".
 // ============================================================================
 
 import { db } from "./db";
@@ -22,6 +27,7 @@ function toQuestion(row) {
     authorName: row.author_name ?? "Anonym",
     answerCount: row.answer_count ?? 0,
     acceptedAnswerId: row.accepted_answer_id ?? null,
+    organizationId: row.organization_id,
   };
 }
 
@@ -35,38 +41,46 @@ const SELECT_QUESTIONS = `
   LEFT JOIN users u ON u.id = q.author_id
 `;
 
-/** READ – všechny otázky, nejnovější první */
-export function listQuestions() {
-  const rows = db.prepare(`${SELECT_QUESTIONS} ORDER BY q.created_at DESC`).all();
+/** READ – všechny otázky organizace, nejnovější první */
+export function listQuestions(organizationId) {
+  const rows = db
+    .prepare(`${SELECT_QUESTIONS} WHERE q.organization_id = ? ORDER BY q.created_at DESC`)
+    .all(organizationId);
   return rows.map(toQuestion);
 }
 
-/** READ – jedna otázka podle id */
-export function getQuestion(id) {
+/** READ – jedna otázka podle id, jen pokud patří dané organizaci */
+export function getQuestion(id, organizationId) {
   // Otazník je PARAMETR. Hodnotu nikdy nevkládáme do SQL přímo do textu
   // (např. `WHERE id = ${id}`). Útočník by mohl poslat kus SQL kódu
   // a databáze by ho provedla, tomu se říká SQL injection.
   // Parametry databáze bezpečně dosadí sama.
-  const row = db.prepare(`${SELECT_QUESTIONS} WHERE q.id = ?`).get(id);
+  const row = db
+    .prepare(`${SELECT_QUESTIONS} WHERE q.id = ? AND q.organization_id = ?`)
+    .get(id, organizationId);
   return row ? toQuestion(row) : null;
 }
 
 /** CREATE – uloží novou otázku a vrátí ji */
-export function createQuestion({ title, body, category, authorId }) {
+export function createQuestion({ title, body, category, authorId, organizationId }) {
   const result = db
-    .prepare("INSERT INTO questions (title, body, category, author_id) VALUES (?, ?, ?, ?)")
-    .run(title, body, category, authorId);
-  return getQuestion(result.lastInsertRowid);
+    .prepare("INSERT INTO questions (title, body, category, author_id, organization_id) VALUES (?, ?, ?, ?, ?)")
+    .run(title, body, category, authorId, organizationId);
+  return getQuestion(result.lastInsertRowid, organizationId);
 }
 
 /** DELETE – smaže otázku, vrací true, pokud něco smazal */
-export function deleteQuestion(id) {
-  const result = db.prepare("DELETE FROM questions WHERE id = ?").run(id);
+export function deleteQuestion(id, organizationId) {
+  const result = db.prepare("DELETE FROM questions WHERE id = ? AND organization_id = ?").run(id, organizationId);
   return result.changes > 0;
 }
 
 /** UPDATE – označí odpověď jako správnou (nebo zruší označení: answerId = null) */
-export function setAcceptedAnswer(questionId, answerId) {
-  db.prepare("UPDATE questions SET accepted_answer_id = ? WHERE id = ?").run(answerId, questionId);
-  return getQuestion(questionId);
+export function setAcceptedAnswer(questionId, answerId, organizationId) {
+  db.prepare("UPDATE questions SET accepted_answer_id = ? WHERE id = ? AND organization_id = ?").run(
+    answerId,
+    questionId,
+    organizationId,
+  );
+  return getQuestion(questionId, organizationId);
 }

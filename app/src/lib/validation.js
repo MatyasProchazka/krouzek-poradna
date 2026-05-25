@@ -36,11 +36,25 @@ export const answerSchema = z.object({
     .max(10000, "Odpověď může mít nejvýš 10 000 znaků."),
 });
 
-export const registerSchema = z.object({
-  name: z.string().trim().min(2, "Jméno musí mít aspoň 2 znaky.").max(60),
-  email: z.email("Zadej platný e-mail.").transform((e) => e.toLowerCase()),
-  password: z.string().min(8, "Heslo musí mít aspoň 8 znaků.").max(200),
-});
+export const registerSchema = z
+  .object({
+    name: z.string().trim().min(2, "Jméno musí mít aspoň 2 znaky.").max(60),
+    email: z.email("Zadej platný e-mail.").transform((e) => e.toLowerCase()),
+    password: z.string().min(8, "Heslo musí mít aspoň 8 znaků.").max(200),
+    // Lekce 11: buď kód pozvánky do existující školy, nebo název nové školy
+    mode: z.enum(["join", "create"]).default("join"),
+    inviteCode: z.string().trim().optional(),
+    organizationName: z.string().trim().optional(),
+  })
+  // superRefine: pravidlo, které se týká víc polí najednou
+  .superRefine((data, ctx) => {
+    if (data.mode === "join" && !data.inviteCode) {
+      ctx.addIssue({ code: "custom", path: ["inviteCode"], message: "Zadej kód pozvánky od lektora." });
+    }
+    if (data.mode === "create" && (!data.organizationName || data.organizationName.length < 3)) {
+      ctx.addIssue({ code: "custom", path: ["organizationName"], message: "Název školy musí mít aspoň 3 znaky." });
+    }
+  });
 
 export const loginSchema = z.object({
   email: z.email("Zadej platný e-mail."),

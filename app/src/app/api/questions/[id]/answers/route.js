@@ -16,7 +16,7 @@ export async function POST(request, { params }) {
   if (!can(user, "answer:create")) return forbidden();
 
   const { id } = await params;
-  const question = getQuestion(Number(id));
+  const question = getQuestion(Number(id), user.organizationId);
   if (!question) return notFound("Otázka nenalezena.");
 
   const { data, response } = await parseBody(request, answerSchema);

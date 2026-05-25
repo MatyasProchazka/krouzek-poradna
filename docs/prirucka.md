@@ -11,7 +11,7 @@ Tady najdeš všechno, co potřebuješ nainstalovat a nastavit, abys mohl projek
 5. [Testování API (Postman / Thunder Client)](#5-testování-api-postman--thunder-client)
 6. [Next.js aplikace a SQLite](#6-nextjs-aplikace-a-sqlite)
 7. [Proměnné prostředí a tajné klíče](#7-proměnné-prostředí-a-tajné-klíče)
-8. [Účet lektora](#8-účet-lektora)
+8. [Účet lektora a školy](#8-účet-lektora-a-školy)
 9. [Docker](#9-docker)
 10. [GitHub Actions (CI/CD)](#10-github-actions-cicd)
 11. [Nasazení na internet](#11-nasazení-na-internet)
@@ -180,9 +180,17 @@ node -e "console.log(crypto.randomUUID() + crypto.randomUUID())"
 
 Když tajný klíč omylem commitneš, nestačí ho smazat dalším commitem, v historii gitu zůstane. Klíč je potřeba **změnit** (vygenerovat nový).
 
-## 8. Účet lektora
+## 8. Účet lektora a školy
 
-Od lekce 9 rozlišuje aplikace role **student** a **lektor**. Lektor smí mazat cizí otázky i odpovědi a označovat správné odpovědi. Každý nový účet je student. Lektora z něj udělá správce skriptem:
+Od lekce 9 rozlišuje aplikace role **student** a **lektor**. Lektor smí mazat cizí otázky i odpovědi a označovat správné odpovědi.
+
+Od lekce 11 patří každý účet jedné **škole** (organizaci):
+
+- Kdo při registraci zvolí *Zakládám Poradnu pro svoji školu*, založí novou školu a stane se jejím lektorem. Na stránce **Moje škola** pak najde kód pozvánky pro studenty.
+- Kdo zadá **kód pozvánky**, připojí se ke škole jako student.
+- Výchozí škola z dřívějších lekcí má kód `KROUZEK-2026`.
+
+Udělat lektora z existujícího účtu jde i skriptem:
 
 ```bash
 cd app

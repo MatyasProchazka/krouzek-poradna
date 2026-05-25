@@ -11,8 +11,13 @@ import { can } from "@/lib/permissions";
 import { notFound, unauthorized, forbidden } from "@/lib/http";
 
 export async function GET(request, { params }) {
+  const user = await getCurrentUser();
+  if (!user) return unauthorized();
+
   const { id } = await params;
-  const question = getQuestion(Number(id));
+  // Otázka jiné školy se tváří jako neexistující (404, ne 403),
+  // abychom neprozradili ani to, že nějaká taková existuje.
+  const question = getQuestion(Number(id), user.organizationId);
   if (!question) return notFound("Otázka nenalezena.");
 
   return NextResponse.json({ ...question, answers: listAnswers(question.id) });
@@ -23,7 +28,7 @@ export async function DELETE(request, { params }) {
   if (!user) return unauthorized();
 
   const { id } = await params;
-  const question = getQuestion(Number(id));
+  const question = getQuestion(Number(id), user.organizationId);
   if (!question) return notFound("Otázka nenalezena.");
 
   // Lekce 9: AUTORIZACE. Přihlášený ještě neznamená oprávněný.
@@ -31,6 +36,6 @@ export async function DELETE(request, { params }) {
   // (takové chybě se říká IDOR – Insecure Direct Object Reference).
   if (!can(user, "question:delete", question)) return forbidden();
 
-  deleteQuestion(question.id);
+  deleteQuestion(question.id, user.organizationId);
   return new NextResponse(null, { status: 204 });
 }

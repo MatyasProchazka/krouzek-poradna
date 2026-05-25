@@ -5,7 +5,8 @@
 // DŘÍV, než se požadavek dostane ke stránce nebo API. Hodí se pro věci
 // společné mnoha stránkám, typicky kontrolu přihlášení.
 //
-// Tady: na stránku /ptat-se a na zápis do API pustíme jen přihlášené.
+// Tady: stránky, které potřebují přihlášení, pustíme jen přihlášeným.
+// Lekce 11: od zavedení škol (SaaS) jsou neveřejné i detaily otázek.
 // ============================================================================
 
 import { NextResponse } from "next/server";
@@ -28,9 +29,8 @@ export async function middleware(request) {
   return NextResponse.redirect(loginUrl);
 }
 
-// Na které adresy se middleware vztahuje. Čtení otázek (GET /api/questions)
-// necháváme veřejné, proto chráníme jen stránku /ptat-se a zápis přes API.
-// (Kontrolu metody POST řeší samotný route handler, viz api/questions/route.js.)
+// Na které adresy se middleware vztahuje. API endpointy si přihlášení
+// kontrolují samy (getCurrentUser), protože potřebují i data o uživateli.
 export const config = {
-  matcher: ["/ptat-se"],
+  matcher: ["/ptat-se", "/otazky/:path*", "/skola"],
 };

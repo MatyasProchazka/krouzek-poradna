@@ -23,12 +23,19 @@ describe("questionSchema", () => {
 
 describe("registerSchema", () => {
   it("převede e-mail na malá písmena", () => {
-    const { data } = validate(registerSchema, { name: "Jana", email: "Jana@Example.CZ", password: "dlouheheslo" });
+    const { data } = validate(registerSchema, { name: "Jana", email: "Jana@Example.CZ", password: "dlouheheslo", inviteCode: "ABC-DEF-GHJ" });
     expect(data.email).toBe("jana@example.cz");
   });
 
   it("vyžaduje heslo aspoň 8 znaků", () => {
-    const { errors } = validate(registerSchema, { name: "Jana", email: "jana@example.cz", password: "kratke" });
+    const { errors } = validate(registerSchema, { name: "Jana", email: "jana@example.cz", password: "kratke", inviteCode: "ABC-DEF-GHJ" });
     expect(errors.password).toBeDefined();
+  });
+
+  it("vyžaduje kód pozvánky, nebo název nové školy", () => {
+    const base = { name: "Jana", email: "jana@example.cz", password: "dlouheheslo" };
+    expect(validate(registerSchema, { ...base, mode: "join" }).errors.inviteCode).toBeDefined();
+    expect(validate(registerSchema, { ...base, mode: "create" }).errors.organizationName).toBeDefined();
+    expect(validate(registerSchema, { ...base, mode: "create", organizationName: "SPŠ Jihlava" }).errors).toBeUndefined();
   });
 });
