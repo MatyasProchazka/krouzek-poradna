@@ -24,7 +24,7 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   const user = await getCurrentUser();
   const question = user ? getQuestion(Number(id), user.organizationId) : null;
-  return { title: question ? `${question.title} · Poradna` : "Otázka nenalezena" };
+  return { title: question ? question.title : "Otázka nenalezena" };
 }
 
 export default async function QuestionDetailPage({ params }) {

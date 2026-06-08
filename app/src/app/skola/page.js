@@ -10,7 +10,7 @@ import { getOrganization, countMembers, PLANS } from "@/lib/organizations";
 import { ROLES } from "@/lib/permissions";
 import ActionButton from "@/components/ActionButton";
 
-export const metadata = { title: "Moje škola · Poradna" };
+export const metadata = { title: "Moje škola" };
 export const dynamic = "force-dynamic";
 
 export default async function OrganizationPage() {

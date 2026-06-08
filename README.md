@@ -34,3 +34,4 @@ Pak otevři http://localhost:3000. Starší lekce (01–03) se spouštějí podl
 - [Architektura](docs/architektura.md) – diagramy vrstev a datového modelu
 - [API](docs/api/openapi.yaml) – popis endpointů ve formátu OpenAPI
 - [Jak pracujeme s gitem](docs/git-workflow.md)
+- [Produkt a MVP](docs/produkt/mvp.md) a [podnikání ve webovém vývoji](docs/produkt/podnikani.md)
