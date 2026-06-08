@@ -2,7 +2,7 @@
 import { Suspense } from "react";
 import AuthForm from "@/components/AuthForm";
 
-export const metadata = { title: "Registrace · Poradna" };
+export const metadata = { title: "Registrace" };
 
 export default function RegisterPage() {
   return (

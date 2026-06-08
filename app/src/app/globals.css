@@ -281,3 +281,22 @@ button.danger {
 }
 .answer.is-accepted { border: 2px solid var(--accent); background: var(--accent-soft); }
 .accepted-label { font-size: .8rem; font-weight: 700; color: var(--accent); margin-bottom: .35rem; }
+
+/* --- Lekce 12: landing page --- */
+.landing { display: grid; gap: 2.5rem; }
+.hero { text-align: center; padding: 2rem 1rem 1rem; }
+.hero h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; margin: 0 0 1rem; letter-spacing: -.02em; }
+.lead { font-size: 1.15rem; color: var(--muted); max-width: 38rem; margin: 0 auto 1.5rem; }
+.hero-actions { display: flex; gap: 1.25rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+.button-link.big { padding: .85rem 1.4rem; font-size: 1.05rem; }
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.features h2 { font-size: 1.05rem; margin: 0 0 .4rem; }
+.features p { margin: 0; }
+.steps { display: grid; gap: .6rem; padding-left: 1.4rem; font-size: 1.05rem; }
+.pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.pricing h3 { margin: 0; }
+.price { font-size: 2rem; font-weight: 800; margin: .3rem 0; }
+.price span { font-size: 1rem; font-weight: 500; color: var(--muted); }
+.card.featured { border: 2px solid var(--accent); }
+.cta { background: var(--accent-soft); border-radius: var(--radius); padding: 2rem 1rem; }
+.cta h2 { margin-top: 0; }

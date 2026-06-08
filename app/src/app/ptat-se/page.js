@@ -2,7 +2,7 @@
 // Nepřihlášené sem nepustí middleware.js (přesměruje je na /prihlaseni).
 import QuestionForm from "@/components/QuestionForm";
 
-export const metadata = { title: "Nová otázka · Poradna" };
+export const metadata = { title: "Nová otázka" };
 
 export default function AskPage() {
   return (

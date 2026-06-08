@@ -11,10 +11,27 @@ import LogoutButton from "@/components/LogoutButton";
 import "./globals.css";
 
 // Metadata se propíšou do <head>: titulek v záložce prohlížeče, popis pro Google
+// Lekce 12 (SEO): šablona titulku, Open Graph pro hezký náhled při sdílení
+// odkazu na sociálních sítích a v chatu, kanonická adresa webu.
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata = {
-  title: "Poradna",
-  description: "Zeptej se na cokoliv z webového vývoje.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Poradna – otázky a odpovědi z IT pro školy",
+    template: "%s · Poradna", // podstránky: "Registrace · Poradna"
+  },
+  description:
+    "Jednoduchý prostor, kde se studenti ptají na cokoliv z IT a lektor i spolužáci odpovídají. Pro střední školy, kroužky a kurzy. Zdarma do 30 členů.",
   icons: { icon: "/favicon.svg" },
+  openGraph: {
+    type: "website",
+    locale: "cs_CZ",
+    siteName: "Poradna",
+    title: "Poradna – místo, kde se studenti nebojí zeptat",
+    description: "Otázky a odpovědi z IT pro střední školy, kroužky a kurzy.",
+  },
+  alternates: { canonical: "/" },
 };
 
 // Layout je serverová komponenta, může tedy být async a zjistit přihlášení.
