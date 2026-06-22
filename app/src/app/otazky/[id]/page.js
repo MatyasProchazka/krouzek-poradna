@@ -116,7 +116,7 @@ export default async function QuestionDetailPage({ params }) {
 
       <section className="card">
         {user ? (
-          <AnswerForm questionId={question.id} />
+          <AnswerForm questionId={question.id} canSuggest={can(user, "answer:suggest")} />
         ) : (
           <p className="muted">
             <Link href={`/prihlaseni?dalsi=/otazky/${question.id}`}>Přihlas se</Link>, abys mohl odpovědět.

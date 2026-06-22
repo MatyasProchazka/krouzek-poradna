@@ -31,6 +31,11 @@ describe("can()", () => {
     expect(can(lektor, "answer:accept", questionOfStudent)).toBe(true);
   });
 
+  it("AI návrh odpovědi smí jen lektor", () => {
+    expect(can(student, "answer:suggest")).toBe(false);
+    expect(can(lektor, "answer:suggest")).toBe(true);
+  });
+
   it("neznámá akce je zakázaná (deny by default)", () => {
     expect(can(lektor, "users:delete-all")).toBe(false);
   });

@@ -15,6 +15,7 @@ Tady najdeš všechno, co potřebuješ nainstalovat a nastavit, abys mohl projek
 9. [Docker](#9-docker)
 10. [GitHub Actions (CI/CD)](#10-github-actions-cicd)
 11. [Nasazení na internet](#11-nasazení-na-internet)
+12. [API klíč pro AI](#12-api-klíč-pro-ai)
 
 ---
 
@@ -254,3 +255,22 @@ Před aplikaci se pak dává reverzní proxy s HTTPS certifikátem, nejjednoduš
 ### Vlastní doména
 
 U registrátora domény (např. Forpsi, Wedos, Active24) přidej v DNS záznam `CNAME` (nebo `A` u VPS) odkazující na adresu od hostingu. Změna DNS se projeví během minut až hodin.
+
+## 12. API klíč pro AI
+
+Funkce „Navrhnout odpověď pomocí AI“ (lekce 13) volá jazykový model Claude přes API. Je **volitelná**, bez klíče aplikace funguje normálně, jen AI tlačítko vrátí hlášku, že AI není nastavená.
+
+1. Zaregistruj se na [console.anthropic.com](https://console.anthropic.com).
+2. V sekci **Billing** nastav platební metodu a malý kredit (na zkoušení stačí jednotky dolarů; jeden návrh odpovědi stojí zlomky centu).
+3. V sekci **API Keys** klikni na *Create Key* a klíč si zkopíruj (zobrazí se jen jednou).
+4. Vlož ho do `app/.env.local`:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+5. Restartuj vývojový server (`Ctrl+C`, `npm run dev`).
+
+> **Bezpečnost:** klíč nikdy necommituj a neposílej do chatu. Kdo ho má, utrácí z tvého kreditu. V konzoli si nastav **měsíční limit útraty**. Když klíč unikne, okamžitě ho v konzoli smaž a vytvoř nový.
+
+Model se dá změnit proměnnou `AI_MODEL` (výchozí je menší a levnější model, na koncepty odpovědí stačí). Stejný princip funguje i u jiných poskytovatelů (OpenAI, Google), lišil by se jen formát požadavku v `src/lib/ai.js`.
