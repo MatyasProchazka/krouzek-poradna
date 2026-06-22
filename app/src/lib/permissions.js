@@ -26,7 +26,7 @@ const isOwner = (user, resource) => Boolean(user && resource && resource.authorI
  * Čistá funkce: snadno se testuje (tests/permissions.test.js).
  *
  * @param user      přihlášený uživatel nebo null
- * @param action    "question:create" | "question:delete" | "answer:create" | "answer:delete" | "answer:accept"
+ * @param action    "question:create" | "question:delete" | "answer:create" | "answer:delete" | "answer:accept" | "answer:suggest"
  * @param resource  otázka nebo odpověď, které se akce týká
  */
 export function can(user, action, resource) {
@@ -45,6 +45,11 @@ export function can(user, action, resource) {
       // Odpověď jako "vyřešeno" označí autor OTÁZKY nebo lektor.
       // resource je tady otázka, ne odpověď.
       return isLektor(user) || isOwner(user, resource);
+
+    case "answer:suggest":
+      // Lekce 13: AI návrh odpovědi jen pro lektora (stojí peníze a lektor
+      // za odpověď ručí)
+      return isLektor(user);
 
     default:
       // Neznámá akce = zakázáno. Bezpečnější je zapomenuté pravidlo

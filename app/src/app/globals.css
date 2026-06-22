@@ -300,3 +300,12 @@ button.danger {
 .card.featured { border: 2px solid var(--accent); }
 .cta { background: var(--accent-soft); border-radius: var(--radius); padding: 2rem 1rem; }
 .cta h2 { margin-top: 0; }
+
+/* --- Lekce 13: AI návrh odpovědi --- */
+.form-actions { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
+.form-actions button { margin-top: .75rem; }
+.ai-note {
+  margin: .5rem 0 0; padding: .5rem .75rem; border-radius: 8px; font-size: .85rem;
+  background: #fff6db; color: #6b5200;
+}
+@media (prefers-color-scheme: dark) { .ai-note { background: #3a3218; color: #f0d98a; } }
