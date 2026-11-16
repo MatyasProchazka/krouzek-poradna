@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Stáhnout kód
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Nainstalovat Node.js
         uses: actions/setup-node@v4
@@ -57,7 +57,7 @@ jobs:
       packages: write              # právo nahrát image do ghcr.io
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Přihlásit se do GitHub Container Registry
         uses: docker/login-action@v3
