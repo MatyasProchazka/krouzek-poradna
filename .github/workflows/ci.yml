@@ -67,7 +67,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}   # token, který GitHub dává automaticky
 
       - name: Sestavit a nahrát image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: app
           push: true
